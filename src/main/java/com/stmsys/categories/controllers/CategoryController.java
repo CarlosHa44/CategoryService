@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
     private final CategoryService categoryService;
@@ -35,7 +35,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateProduct(@PathVariable Long id, @RequestBody Category category) {
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category category) {
         try{
             return ResponseEntity.ok(categoryService.updateCategory(id, category));
         }catch(RuntimeException e){
