@@ -1,6 +1,7 @@
 package com.stmsys.categories.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
@@ -10,8 +11,9 @@ public class Category {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-
+    @NotBlank
     private String name;
+    @NotBlank
     private String description;
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
