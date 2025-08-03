@@ -1,4 +1,5 @@
-FROM eclipse-temurin:17-jdk-jammy
+# Etapa de construcción
+FROM eclipse-temurin:17-jdk-jammy AS build
 
 WORKDIR /app
 
@@ -6,24 +7,28 @@ COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
 
-# Descarga las dependencias
 RUN ./mvnw dependency:go-offline
 
-# Copia el código fuente
 COPY src src
-
-# Empaqueta la aplicación
 RUN ./mvnw clean package -DskipTests
 
-# Puerto que expone la aplicación (debe coincidir con server.port en application.properties)
-EXPOSE $PORT
+# Etapa de ejecución (más liviana)
+FROM eclipse-temurin:17-jre-jammy
 
-# Variables de entorno para la conexión a MySQL (pueden ser sobrescritas al ejecutar el contenedor)
-ENV DB_HOST=test-db
-ENV DB_PORT=3306
-ENV DB_DATABASE=test
-ENV DB_USER=root
-ENV DB_PASSWORD=admin123
+WORKDIR /app
 
-# Comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "target/categories-0.0.1-SNAPSHOT.jar"]
+# Copiar solo el jar generado desde la etapa de build
+COPY --from=build /app/target/categories-0.0.1-SNAPSHOT.jar app.jar
+
+# Variables de entorno (se pueden sobrescribir)
+ENV DB_HOST=test-db \
+    DB_PORT=3306 \
+    DB_DATABASE=test \
+    DB_USER=root \
+    DB_PASSWORD=admin123
+
+# Puerto (si usas Spring Boot, define server.port)
+EXPOSE 8080
+
+# Ejecuta el jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
